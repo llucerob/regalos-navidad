@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta oficial de la Ilustre Municipalidad de Coinco */
+  --color-coinco-azul: #003169;
+  --color-coinco-azul-oscuro: #00224a;
+  --color-coinco-celeste: #00ceff;
+  --color-coinco-amarillo: #ffba2f;
+  --color-coinco-verde: #00a87a;
+  --color-coinco-rojo: #ff4153;
+  --color-coinco-fondo: #f2f6fb;
+  --font-sans: "Montserrat Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+
+/* Modo oscuro deshabilitado a propósito: preserva los colores institucionales */
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-coinco-fondo);
+  color: #1b2b40;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-coinco-celeste);
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-imprimir {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
