@@ -96,8 +96,8 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
       if (online && !ap.email) e["apoderado.email"] = "Ingrese un correo para enviarle el comprobante y los avisos.";
       if (ap.direccion.trim().length < 5) e["apoderado.direccion"] = "Ingrese su dirección.";
       if (!ap.sectorId) e["apoderado.sectorId"] = "Seleccione su sector o Junta de Vecinos.";
-      if (!tramo) e["tramo"] = "Seleccione una opción.";
-      if (tramo === "superior") e["tramo"] = "Solo pueden inscribirse hogares del tramo del 40% del Registro Social de Hogares.";
+      //if (!tramo) e["tramo"] = "Seleccione una opción.";
+      //if (tramo === "superior") e["tramo"] = "Solo pueden inscribirse hogares del tramo del 40% del Registro Social de Hogares.";
     }
     if (p === 1) {
       if (!benefs.length) e["beneficiarios"] = "Agregue al menos un niño, niña o madre en gestación.";
