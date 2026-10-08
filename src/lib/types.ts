@@ -45,7 +45,7 @@ export interface Inscripcion {
   direccion: string;
   sector_id: string | null;
   residencia_acreditada_con: "rsh" | "certificado_jv";
-  tramo_declarado: "hasta_40" | "no_sabe";
+  tramo_declarado: "hasta_40" | "no_sabe" | "superior";
   observacion: string | null;
   checklist: Record<string, boolean>;
   revisado_por: string | null;

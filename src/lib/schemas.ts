@@ -59,7 +59,7 @@ export const inscripcionSchema = z.object({
   modo: z.enum(["online", "presencial"]),
   apoderado: apoderadoSchema,
   residenciaCon: z.enum(["rsh", "certificado_jv"]),
-  tramo: z.enum(["hasta_40", "no_sabe"]),
+  tramo: z.enum(["hasta_40", "no_sabe", "superior"]),
   beneficiarios: z
     .array(beneficiarioSchema)
     .min(1, "Agregue al menos un niño, niña o madre gestante")
@@ -85,9 +85,9 @@ export function validarReglasNegocio(
   if (ctx.canal === "online" && !p.apoderado.email) {
     errores["apoderado.email"] = "Ingrese un correo electrónico para enviarle el comprobante";
   }
-  if (p.tramo === "hasta_40" || p.tramo === "no_sabe") {
+  //if (p.tramo === "hasta_40" || p.tramo === "no_sabe") {
     /* válido; el revisor verifica con la cartola */
-  }
+  //}
 
   const vistos = new Set<string>();
   p.beneficiarios.forEach((b, i) => {

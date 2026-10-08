@@ -93,7 +93,8 @@ export default async function DetalleInscripcion({
                 ["Dirección", ins.direccion],
                 ["Sector", ins.sectores?.nombre ?? "—"],
                 ["Acredita residencia con", ins.residencia_acreditada_con === "rsh" ? "Cartola RSH" : "Certificado Junta de Vecinos"],
-                ["Tramo declarado", ins.tramo_declarado === "hasta_40" ? "40% o menos" : "No sabe (verificar con cartola)"],
+                //["Tramo declarado", ins.tramo_declarado === "hasta_40" ? "40% o menos" : "No sabe (verificar con cartola)"],
+                ["Tramo declarado", ins.tramo_declarado === "hasta_40" ? "40% o menos" : ins.tramo_declarado === "superior" ? "Superior al 40% (verificar con cartola)" : "No sabe (verificar con cartola)"],
               ].map(([t, v]) => (
                 <div key={t}><dt className="text-xs font-bold uppercase tracking-wide text-slate-500">{t}</dt><dd className="font-medium">{v}</dd></div>
               ))}

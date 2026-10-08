@@ -96,7 +96,7 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
       if (online && !ap.email) e["apoderado.email"] = "Ingrese un correo para enviarle el comprobante y los avisos.";
       if (ap.direccion.trim().length < 5) e["apoderado.direccion"] = "Ingrese su dirección.";
       if (!ap.sectorId) e["apoderado.sectorId"] = "Seleccione su sector o Junta de Vecinos.";
-      //if (!tramo) e["tramo"] = "Seleccione una opción.";
+      if (!tramo) e["tramo"] = "Seleccione una opción.";
       //if (tramo === "superior") e["tramo"] = "Solo pueden inscribirse hogares del tramo del 40% del Registro Social de Hogares.";
     }
     if (p === 1) {
@@ -294,7 +294,7 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
             opciones={[
               { valor: "hasta_40", texto: "Mi hogar está en el tramo del 40% o menos" },
               { valor: "no_sabe", texto: "No estoy seguro(a)", detalle: "Un funcionario lo verificará con su cartola." },
-              { valor: "superior", texto: "Mi hogar está en un tramo superior al 40%" },
+              { valor: "superior", texto: "Mi hogar está en un tramo superior al 40%", detalle: "Puede inscribirse igual; un funcionario revisará su caso con la cartola." },
             ]} />
         </Tarjeta>
       )}

@@ -51,6 +51,7 @@ export const ETIQUETA_CANAL: Record<Canal, string> = {
 export const OPCIONES_TRAMO = [
   { valor: "hasta_40", texto: "Mi hogar está en el tramo del 40% o menos" },
   { valor: "no_sabe", texto: "No estoy seguro(a) / lo verifica el funcionario con mi cartola" },
+  { valor: "superior", texto: "Mi hogar está en un tramo superior al 40%" },
 ] as const;
 
 // Archivos
