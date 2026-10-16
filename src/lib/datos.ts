@@ -160,6 +160,7 @@ export interface Estadisticas {
   porCanal: Record<Canal, number>;
   ninos: number;
   gestantes: number;
+  bebesEsperados: number;
   entregados: number;
   porSector: { sector: string; inscripciones: number; beneficiarios: number }[];
   porEdad: { etiqueta: string; F: number; M: number; otro: number; total: number }[];
@@ -171,8 +172,8 @@ export async function estadisticas(campana: Campana): Promise<Estadisticas> {
     traerTodo<{ id: string; estado: Estado; canal: Canal; sector_id: string | null }>((d, h) =>
       db.from("inscripciones").select("id,estado,canal,sector_id").eq("campana_id", campana.id).range(d, h),
     ),
-    traerTodo<Pick<Beneficiario, "inscripcion_id" | "tipo" | "fecha_nacimiento" | "sexo" | "activo" | "entregado_at">>((d, h) =>
-      db.from("beneficiarios").select("inscripcion_id,tipo,fecha_nacimiento,sexo,activo,entregado_at").eq("campana_id", campana.id).range(d, h),
+    traerTodo<Pick<Beneficiario, "inscripcion_id" | "tipo" | "fecha_nacimiento" | "sexo" | "activo" | "entregado_at" | "cantidad_bebes_esperados">>((d, h) =>
+      db.from("beneficiarios").select("inscripcion_id,tipo,fecha_nacimiento,sexo,activo,entregado_at,cantidad_bebes_esperados").eq("campana_id", campana.id).range(d, h),
     ),
     listarSectores(),
   ]);
@@ -198,7 +199,7 @@ export async function estadisticas(campana: Campana): Promise<Estadisticas> {
   }
 
   const edades = new Map<string, { F: number; M: number; otro: number }>();
-  let ninos = 0, gestantes = 0, entregados = 0;
+  let ninos = 0, gestantes = 0, bebesEsperados = 0, entregados = 0;
   for (const b of benef) {
     if (!b.activo) continue;
     const k = clave(sectorDe.get(b.inscripcion_id));
@@ -206,7 +207,7 @@ export async function estadisticas(campana: Campana): Promise<Estadisticas> {
     a.beneficiarios++;
     acumSector.set(k, a);
     if (b.entregado_at) entregados++;
-    if (b.tipo === "gestante") { gestantes++; continue; }
+    if (b.tipo === "gestante") { gestantes++; bebesEsperados += b.cantidad_bebes_esperados; continue; }
     ninos++;
     const anios = b.fecha_nacimiento ? calcularEdad(b.fecha_nacimiento, campana.fecha_referencia_edad).anios : -1;
     const etiqueta = anios < 0 ? "Sin fecha" : anios === 0 ? "Menos de 1 año" : anios === 1 ? "1 año" : `${anios} años`;
@@ -222,6 +223,7 @@ export async function estadisticas(campana: Campana): Promise<Estadisticas> {
     porCanal,
     ninos,
     gestantes,
+    bebesEsperados,
     entregados,
     porSector: Array.from(acumSector, ([sector, v]) => ({ sector, ...v })).sort((a, b) => b.beneficiarios - a.beneficiarios),
     porEdad: orden

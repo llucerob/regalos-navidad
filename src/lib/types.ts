@@ -71,6 +71,7 @@ export interface Beneficiario {
   activo: boolean;
   entregado_at: string | null;
   entregado_por: string | null;
+  cantidad_bebes_esperados: number;
 }
 
 export interface Documento {

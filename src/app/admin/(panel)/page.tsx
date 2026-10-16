@@ -67,6 +67,11 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Beneficiarios (sin rechazadas)</p>
           <p className="text-4xl font-extrabold text-coinco-azul">{totalBenef}</p>
           <p className="mt-1 text-sm text-slate-600">Niñas y niños: <b>{st.ninos}</b> · Madres gestantes: <b>{st.gestantes}</b></p>
+          {st.bebesEsperados !== st.gestantes && (
+            <p className="mt-1 text-sm text-slate-600">
+              Regalos de recién nacido a preparar: <b>{st.bebesEsperados}</b> (incluye embarazos múltiples)
+            </p>
+          )}
         </Tarjeta>
         <Tarjeta>
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Entregas registradas</p>

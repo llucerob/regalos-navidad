@@ -10,7 +10,7 @@ import { edadTexto, esElegiblePorEdad } from "@/lib/edad";
 import { formatearFecha, formatearFechaHora } from "@/lib/fechas";
 import { formatearRut } from "@/lib/rut";
 import { cambiarEstado, editarApoderado } from "@/actions/admin";
-import { CHECKLIST_ITEMS, ETIQUETA_CANAL, ETIQUETA_DOC, ETIQUETA_ESTADO } from "@/lib/constants";
+import { CHECKLIST_ITEMS, ETIQUETA_BEBES_ESPERADOS, ETIQUETA_CANAL, ETIQUETA_DOC, ETIQUETA_ESTADO } from "@/lib/constants";
 import type { TipoDoc } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Revisar inscripción" };
@@ -93,8 +93,14 @@ export default async function DetalleInscripcion({
                 ["Dirección", ins.direccion],
                 ["Sector", ins.sectores?.nombre ?? "—"],
                 ["Acredita residencia con", ins.residencia_acreditada_con === "rsh" ? "Cartola RSH" : "Certificado Junta de Vecinos"],
-                //["Tramo declarado", ins.tramo_declarado === "hasta_40" ? "40% o menos" : "No sabe (verificar con cartola)"],
-                ["Tramo declarado", ins.tramo_declarado === "hasta_40" ? "40% o menos" : ins.tramo_declarado === "superior" ? "Superior al 40% (verificar con cartola)" : "No sabe (verificar con cartola)"],
+                [
+                  "Tramo declarado",
+                  ins.tramo_declarado === "hasta_40"
+                    ? "40% o menos"
+                    : ins.tramo_declarado === "superior"
+                      ? "Superior al 40% (verificar con cartola)"
+                      : "No sabe (verificar con cartola)",
+                ],
               ].map(([t, v]) => (
                 <div key={t}><dt className="text-xs font-bold uppercase tracking-wide text-slate-500">{t}</dt><dd className="font-medium">{v}</dd></div>
               ))}
@@ -144,6 +150,11 @@ export default async function DetalleInscripcion({
                   <Alerta tipo={elegible ? "ok" : "error"} className="mb-3">
                     Nació el {formatearFecha(b.fecha_nacimiento)} · Edad al {formatearFecha(campana.fecha_referencia_edad)}: <b>{edadTexto(b.fecha_nacimiento, campana.fecha_referencia_edad)}</b>.{" "}
                     {elegible ? "Cumple el requisito de edad." : "NO cumple el requisito de edad."}
+                  </Alerta>
+                )}
+                {b.tipo === "gestante" && b.cantidad_bebes_esperados > 1 && (
+                  <Alerta tipo="aviso" className="mb-3">
+                    Embarazo múltiple: <b>{ETIQUETA_BEBES_ESPERADOS[b.cantidad_bebes_esperados]}</b>. Reservar <b>{b.cantidad_bebes_esperados}</b> regalos de recién nacido para esta inscripción.
                   </Alerta>
                 )}
                 {b.tipo === "gestante" && b.fecha_probable_parto && <p className="mb-3 text-sm">Fecha probable de parto: <b>{formatearFecha(b.fecha_probable_parto)}</b></p>}

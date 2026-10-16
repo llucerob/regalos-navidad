@@ -7,7 +7,8 @@ import {
   MAX_ARCHIVOS_POR_DOCUMENTO,
   MAX_BENEFICIARIOS_POR_FORMULARIO,
   TAMANO_MAX_ARCHIVO,
-  TIPOS_MIME_PERMITIDOS,
+  TIPOS_MIME_PERMITIDOS,  
+  MAX_BEBES_ESPERADOS,  
 } from "./constants";
 import type { Canal } from "./types";
 
@@ -38,6 +39,7 @@ export const beneficiarioSchema = z.object({
   sexo: z.enum(["F", "M", "otro"]).optional(),
   documentoIdentidad: z.enum(["cedula", "certificado_nacimiento"]).optional(),
   fechaProbableParto: z.string().optional(),
+  cantidadBebesEsperados: z.number().int().min(1).max(MAX_BEBES_ESPERADOS).optional(),
   docs: docsSchema.default({}),
 });
 

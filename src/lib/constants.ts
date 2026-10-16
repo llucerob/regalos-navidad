@@ -54,6 +54,16 @@ export const OPCIONES_TRAMO = [
   { valor: "superior", texto: "Mi hogar está en un tramo superior al 40%" },
 ] as const;
 
+// Embarazo múltiple: cuántos regalos de recién nacido reservar por esa inscripción.
+export const MAX_BEBES_ESPERADOS = 4;
+export const ETIQUETA_BEBES_ESPERADOS: Record<number, string> = {
+  1: "Uno",
+  2: "Mellizos o gemelos",
+  3: "Trillizos",
+  4: "4 o más",
+};
+export const OPCIONES_BEBES_ESPERADOS = [1, 2, 3, 4].map((n) => ({ valor: n, texto: ETIQUETA_BEBES_ESPERADOS[n] }));
+
 // Archivos
 export const TIPOS_MIME_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 export const TAMANO_MAX_ARCHIVO = 5 * 1024 * 1024; // 5 MB (el bucket admite hasta 6 MB)

@@ -10,7 +10,7 @@ import { docsRequeridosBeneficiario, docsRequeridosHogar } from "@/lib/documento
 import { edadTexto, esElegiblePorEdad } from "@/lib/edad";
 import { esFechaIso, formatearFecha } from "@/lib/fechas";
 import { formatearRut, limpiarRut, validarRut } from "@/lib/rut";
-import { ETIQUETA_DOC, MAX_BENEFICIARIOS_POR_FORMULARIO } from "@/lib/constants";
+import { ETIQUETA_BEBES_ESPERADOS, ETIQUETA_DOC, MAX_BEBES_ESPERADOS, MAX_BENEFICIARIOS_POR_FORMULARIO } from "@/lib/constants";
 import type { ArchivoRef, TipoDoc } from "@/lib/types";
 
 interface BenefForm {
@@ -23,6 +23,7 @@ interface BenefForm {
   sexo: "" | "F" | "M" | "otro";
   documentoIdentidad: "cedula" | "certificado_nacimiento";
   fechaProbableParto: string;
+  cantidadBebesEsperados: number;
   docs: Record<string, ArchivoLocal[]>;
 }
 
@@ -48,8 +49,14 @@ const nuevoBenef = (tipo: "nino" | "gestante"): BenefForm => ({
   sexo: "",
   documentoIdentidad: "cedula",
   fechaProbableParto: "",
+  cantidadBebesEsperados: 1,
   docs: {},
 });
+
+const OPCIONES_BEBES = Array.from({ length: MAX_BEBES_ESPERADOS }, (_, i) => i + 1).map((n) => ({
+  valor: String(n),
+  texto: ETIQUETA_BEBES_ESPERADOS[n],
+}));
 
 function pasoDeError(clave: string): number {
   if (clave.startsWith("apoderado") || clave === "tramo" || clave === "residenciaCon") return 0;
@@ -97,7 +104,6 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
       if (ap.direccion.trim().length < 5) e["apoderado.direccion"] = "Ingrese su dirección.";
       if (!ap.sectorId) e["apoderado.sectorId"] = "Seleccione su sector o Junta de Vecinos.";
       if (!tramo) e["tramo"] = "Seleccione una opción.";
-      //if (tramo === "superior") e["tramo"] = "Solo pueden inscribirse hogares del tramo del 40% del Registro Social de Hogares.";
     }
     if (p === 1) {
       if (!benefs.length) e["beneficiarios"] = "Agregue al menos un niño, niña o madre en gestación.";
@@ -196,6 +202,7 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
         sexo: b.tipo === "gestante" ? "F" : b.sexo || undefined,
         documentoIdentidad: b.tipo === "nino" ? b.documentoIdentidad : undefined,
         fechaProbableParto: b.fechaProbableParto || undefined,
+        cantidadBebesEsperados: b.tipo === "gestante" ? b.cantidadBebesEsperados : undefined,
         docs: mapaDocs(b.docs),
       })),
       docsHogar: mapaDocs(docsHogar),
@@ -378,6 +385,20 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
                     </div>
                   </>
                 )}
+
+                {b.tipo === "gestante" && (
+                  <div className="mt-4">
+                    <p className="mb-1 text-sm font-semibold text-coinco-azul">¿Cuántos bebés espera?</p>
+                    <GrupoOpciones nombre={`bebes-${b.key}`} valor={String(b.cantidadBebesEsperados)} columnas
+                      onChange={(v) => actualizarBenef(b.key, { cantidadBebesEsperados: Number(v) })}
+                      opciones={OPCIONES_BEBES} />
+                    {b.cantidadBebesEsperados > 1 && (
+                      <Alerta tipo="info" className="mt-3">
+                        Se reservarán <b>{b.cantidadBebesEsperados}</b> regalos de recién nacido para esta inscripción.
+                      </Alerta>
+                    )}
+                  </div>
+                )}
               </Tarjeta>
             );
           })}
@@ -440,7 +461,9 @@ export function FormularioInscripcion({ modo, campana, hoy, sectores, puedeAprob
           <ul className="space-y-1 text-[15px]">
             {benefs.map((b) => (
               <li key={b.key} className="rounded-lg bg-coinco-fondo px-3 py-2">
-                <b>{b.nombres} {b.apellidos}</b> · {b.rut} · {b.tipo === "gestante" ? "Madre en gestación" : `${b.sexo === "F" ? "Niña" : "Niño"}, ${b.fechaNacimiento ? edadTexto(b.fechaNacimiento, campana.fechaReferenciaEdad) : ""}`}
+                <b>{b.nombres} {b.apellidos}</b> · {b.rut} · {b.tipo === "gestante"
+                  ? `Madre en gestación${b.cantidadBebesEsperados > 1 ? ` (${ETIQUETA_BEBES_ESPERADOS[b.cantidadBebesEsperados]}, ${b.cantidadBebesEsperados} regalos)` : ""}`
+                  : `${b.sexo === "F" ? "Niña" : "Niño"}, ${b.fechaNacimiento ? edadTexto(b.fechaNacimiento, campana.fechaReferenciaEdad) : ""}`}
                 <span className="text-slate-500"> · {Object.values(b.docs).flat().length} archivo(s)</span>
               </li>
             ))}

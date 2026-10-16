@@ -81,6 +81,7 @@ export async function generarExportacion(
     { header: "Edad a fecha de referencia", key: "edad", width: 18 },
     { header: "Años cumplidos", key: "anios", width: 10 },
     { header: "Fecha probable de parto", key: "fpp", width: 15 },
+    { header: "Bebés esperados", key: "bebes", width: 15 },
     { header: "RUT apoderado", key: "arut", width: 15 },
     { header: "Apoderado", key: "apoderado", width: 30 },
     { header: "Teléfono", key: "tel", width: 15 },
@@ -104,6 +105,7 @@ export async function generarExportacion(
       edad: b.fecha_nacimiento ? edadTexto(b.fecha_nacimiento, campana.fecha_referencia_edad) : "",
       anios: cumplidos,
       fpp: formatearFecha(b.fecha_probable_parto),
+      bebes: b.tipo === "gestante" && b.cantidad_bebes_esperados > 1 ? b.cantidad_bebes_esperados : "",
       arut: formatearRut(ins.apoderado_rut),
       apoderado: `${ins.apoderado_nombres} ${ins.apoderado_apellidos}`,
       tel: ins.apoderado_telefono,
@@ -132,9 +134,10 @@ export async function generarExportacion(
   h2.addRow([]);
   const cab = h2.addRow(["Grupo", "Niñas", "Niños", "Otro", "Total"]);
   const resumen = new Map<string, { F: number; M: number; otro: number }>();
-  let gestantes = 0;
+  let gestantesInscritas = 0;
+  let bebesEsperados = 0;
   for (const { b } of filas) {
-    if (b.tipo === "gestante") { gestantes++; continue; }
+    if (b.tipo === "gestante") { gestantesInscritas++; bebesEsperados += b.cantidad_bebes_esperados; continue; }
     const anios = b.fecha_nacimiento ? calcularEdad(b.fecha_nacimiento, campana.fecha_referencia_edad).anios : -1;
     const k = anios < 0 ? "Sin fecha" : anios === 0 ? "Menos de 1 año" : anios === 1 ? "1 año" : `${anios} años`;
     const r = resumen.get(k) ?? { F: 0, M: 0, otro: 0 };
@@ -150,7 +153,7 @@ export async function generarExportacion(
   }
   const ultimaDato = h2.rowCount;
   const nG = h2.rowCount + 1;
-  h2.addRow(["Madres gestantes", "", "", "", gestantes]);
+  h2.addRow(["Regalos para recién nacidos (bebés esperados)", "", "", "", bebesEsperados]);
   const tot = h2.addRow([
     "TOTAL",
     { formula: `SUM(B${primeraDato}:B${ultimaDato})` },
@@ -162,7 +165,13 @@ export async function generarExportacion(
   tot.fill = { type: "pattern", pattern: "solid", fgColor: { argb: AMARILLO } };
   cab.font = { bold: true, color: { argb: "FFFFFFFF" } };
   cab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: AZUL } };
-  h2.columns = [{ width: 22 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }];
+  const infoGestantes = h2.addRow([]);
+  infoGestantes.getCell(1).value =
+    `Madres gestantes inscritas (personas): ${gestantesInscritas}` +
+    (bebesEsperados !== gestantesInscritas ? ` · incluye embarazos múltiples (mellizos/trillizos)` : "");
+  infoGestantes.getCell(1).font = { italic: true, color: { argb: "FF5B6B80" } };
+  h2.mergeCells(infoGestantes.number, 1, infoGestantes.number, 5);
+  h2.columns = [{ width: 30 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }];
 
   // ── Hoja 3: Por sector ──
   const h3 = wb.addWorksheet("Por sector");
@@ -170,14 +179,14 @@ export async function generarExportacion(
     { header: "Sector / Junta de Vecinos", key: "s", width: 30 },
     { header: "Inscripciones", key: "i", width: 15 },
     { header: "Niñas y niños", key: "n", width: 15 },
-    { header: "Madres gestantes", key: "g", width: 17 },
+    { header: "Regalos para gestantes", key: "g", width: 20 },
     { header: "Total beneficiarios", key: "t", width: 19 },
   ];
   const porSector = new Map<string, { ins: Set<string>; n: number; g: number }>();
   for (const { ins, b, sector } of filas) {
     const a = porSector.get(sector) ?? { ins: new Set<string>(), n: 0, g: 0 };
     a.ins.add(ins.id);
-    if (b.tipo === "gestante") a.g++; else a.n++;
+    if (b.tipo === "gestante") a.g += b.cantidad_bebes_esperados; else a.n++;
     porSector.set(sector, a);
   }
   for (const [s, a] of [...porSector].sort((x, y) => x[0].localeCompare(y[0], "es"))) {
@@ -205,7 +214,14 @@ export async function generarExportacion(
       sector,
       b: `${b.apellidos}, ${b.nombres}`,
       rut: formatearRut(b.rut),
-      edad: b.tipo === "gestante" ? "Gestante" : b.fecha_nacimiento ? edadTexto(b.fecha_nacimiento, campana.fecha_referencia_edad) : "",
+      edad:
+        b.tipo === "gestante"
+          ? b.cantidad_bebes_esperados > 1
+            ? `Gestante · ${b.cantidad_bebes_esperados} bebés`
+            : "Gestante"
+          : b.fecha_nacimiento
+            ? edadTexto(b.fecha_nacimiento, campana.fecha_referencia_edad)
+            : "",
       a: `${ins.apoderado_apellidos}, ${ins.apoderado_nombres}`,
       arut: formatearRut(ins.apoderado_rut),
       tel: ins.apoderado_telefono,

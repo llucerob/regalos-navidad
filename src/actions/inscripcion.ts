@@ -173,6 +173,7 @@ export async function enviarInscripcion(entrada: unknown): Promise<Resultado<{ i
         sexo: b.tipo === "gestante" ? "F" : b.sexo,
         documento_identidad: b.tipo === "nino" ? b.documentoIdentidad : null,
         fecha_probable_parto: b.tipo === "gestante" ? b.fechaProbableParto || null : null,
+        cantidad_bebes_esperados: b.tipo === "gestante" ? (b.cantidadBebesEsperados ?? 1) : 1,
       })),
     )
     .select("id");
